@@ -1,8 +1,7 @@
-from unittest import result
 from .component import *
 
 import re
-from typing import Any, Iterable, Sequence, SupportsIndex, cast, overload
+from typing import Iterable, Sequence, SupportsIndex, cast, overload
 
 
 __all__ = ['Lrc']
@@ -16,7 +15,7 @@ class _Line:
 
     _tag_inside_pattern = re.compile(r'\[(.+?):(.+?)\]')
 
-    def __init__(self, lyric: str, *tags: Tag | TimeTag):
+    def __init__(self, lyric: str, *tags: ABCTag):
         self.lyric = lyric
         self.tags = tags
 
@@ -44,7 +43,7 @@ class _Line:
         if not tag_strings:
             raise ValueError("Not a string of tags")
 
-        tags: list[Tag] = []
+        tags: list[ABCTag] = []
         for tag_str in tag_strings:
             tag_inside_match = cls._tag_inside_pattern.match(tag_str)
             if not tag_inside_match:
@@ -52,7 +51,6 @@ class _Line:
 
             tags.append(Tag(*tag_inside_match.groups()))
 
-        tags = cast(list[Tag | TimeTag], tags)
         for i in range(len(tags)):
             tag = tags[i]
             if cls._isInteger(tag.name):
@@ -88,7 +86,7 @@ class Lrc:
                     lyrics.append(
                         LyricLine(cast(TimeTag, tag), line.lyric))
             else:
-                tags.append(Tag(first_tag.name, first_tag.val))
+                tags.append(cast(Tag, first_tag))
 
         return Lrc(lyrics, tags)
 
@@ -111,7 +109,13 @@ class Lrc:
     def tags(self):
         return self._tags
 
-    def __getitem__(self, i: SupportsIndex | slice):
+    @overload
+    def __getitem__(self, i: slice) -> list[LyricLine]: ...
+
+    @overload
+    def __getitem__(self, i: SupportsIndex) -> LyricLine: ...
+
+    def __getitem__(self, i):
         return self.lyrics[i]
 
     @overload
