@@ -2,7 +2,7 @@ from unittest import result
 from .component import *
 
 import re
-from typing import Sequence, cast
+from typing import Any, Iterable, Sequence, SupportsIndex, cast, overload
 
 
 __all__ = ['Lrc']
@@ -110,3 +110,18 @@ class Lrc:
     @property
     def tags(self):
         return self._tags
+
+    def __getitem__(self, i: SupportsIndex | slice):
+        return self.lyrics[i]
+
+    @overload
+    def __setitem__(self, i: SupportsIndex, val: LyricLine): ...
+
+    @overload
+    def __setitem__(self, i: slice, val: Iterable[LyricLine]): ...
+
+    def __setitem__(self, i, val):
+        self._lyrics[i] = val
+
+    def __delitem__(self, key: SupportsIndex | slice):
+        del self._lyrics[key]
