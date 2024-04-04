@@ -25,13 +25,11 @@ with open(lrc_file, encoding='utf-8') as f:
 lrc = Lrc.loads(lrc_str) # Load the content from a string
 
 # Example: Make specified line of lyric appearing earlier
-# All the property are read-only in objects of `Lrc`, `Tag`, `TimeTag` and so on
 lyrics: list[LyricLine] = []
 for i, line in enumerate(lrc.lyrics):
     if i % 2 == 0:
         lyrics.append(line)
     else:
-        # So you have to construct a new object
         lyrics.append(LyricLine(lyrics[-1].tag, line.lyric))
 
 new_lrc = Lrc(lyrics, lrc.tags) # Like above
