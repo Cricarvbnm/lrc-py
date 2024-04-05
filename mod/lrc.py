@@ -9,7 +9,7 @@ __all__ = ['Lrc']
 
 class _Line:
     _line_pattern = re.compile(
-        r'^(\[.+?:.+?\])+(.*)', re.MULTILINE | re.IGNORECASE)
+        r'^((?:\[.+?:.+?\])+)(.*)', re.MULTILINE | re.IGNORECASE)
 
     _tag_pattern = re.compile(r'\[.+?:.+?\]')
 
