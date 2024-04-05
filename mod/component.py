@@ -25,6 +25,10 @@ class ABCTag(metaclass=ABCMeta):
     def __hash__(self) -> int:
         return hash((self.name, self.val))
 
+    @abstractmethod
+    def __eq__(self, other: 'ABCTag') -> bool:
+        return self.name == other.name and self.val == other.val
+
 
 class Tag(ABCTag):
     def __init__(self, name: str, val: str):
@@ -61,11 +65,15 @@ class Tag(ABCTag):
     def __hash__(self) -> int:
         return super().__hash__()
 
+    @override
+    def __eq__(self, other: 'Tag') -> bool:
+        return super().__eq__(other)
+
 
 class TimeTag(ABCTag):
     def __init__(self, minute: int, second: float):
-        self._minute = minute
-        self._second = second
+        self._minute = int(minute)
+        self._second = float(second)
 
     @property
     def minute(self):
@@ -101,11 +109,21 @@ class TimeTag(ABCTag):
 
     @override
     def __hash__(self):
-        return hash((self.minute, self.second))
+        return int((self.minute * 60 + self.second) * 1000)
 
     @override
     def __str__(self) -> str:
         return super().__str__()
+
+    @override
+    def __eq__(self, other: 'TimeTag') -> bool:
+        return hash(self) == hash(other)
+
+    def __lt__(self, other: 'TimeTag') -> bool:
+        return hash(self) < hash(other)
+
+    def __le__(self, other: 'TimeTag') -> bool:
+        return hash(self) <= hash(other)
 
 
 class LyricLine:
@@ -128,3 +146,12 @@ class LyricLine:
     @lyric.setter
     def lyric(self, val: str):
         self._lyric = val
+
+    def __eq__(self, other: 'LyricLine') -> bool:
+        return self.tag == other.tag and self.lyric == other.lyric
+
+    def __lt__(self, other: 'LyricLine') -> bool:
+        return self.tag < other.tag
+
+    def __le__(self, other: 'LyricLine') -> bool:
+        return self.tag <= other.tag
